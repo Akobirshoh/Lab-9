@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import List from './components/List';
+import { Button,Checkbox } from '@material-ui/core';
+
+
 
 function App() {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    fetch('https://randomuser.me/api/?results=5')
+      .then(res => res.json())
+      .then(
+        result => {
+          setIsLoading(false);
+          setData(result.results);
+        },
+        error => {
+          setIsLoading(false);
+          setError(error);
+        }
+      );
+  }, []);
+  if (isLoading) {
+    return <div>Loading ...</div>;
+  } else if (error) {
+    return <div>There is an error fetching data.</div>;
+  } else {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <div className='App'>
+  <Navbar/>
+  {data.map(item => (
+    <List
+      key={item.id.value}
+      userAvatar={item.picture.large}
+      firstName={item.name.first}
+      lastName={item.name.last}
+      location={item.location.city}
+    />
+  ))}
+</div>
   );
 }
+}
+
 
 export default App;
